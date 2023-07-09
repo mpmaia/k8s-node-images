@@ -1,0 +1,42 @@
+#cloud-config
+autoinstall:
+  version: 1
+  storage:
+    layout:
+      name: lvm
+  locale: en_US.UTF-8
+  keyboard:
+    layout: us
+  apt:
+    preserve_sources_list: false
+    primary:
+        - arches: [i386, amd64]
+          uri: "http://archive.ubuntu.com/ubuntu"
+        - arches: [default]
+          uri: "http://ports.ubuntu.com/ubuntu-ports"
+    geoip: true
+  ssh:
+    allow-pw: true
+    authorized-keys: []
+    install-server: true
+  packages:
+    - qemu-guest-agent
+    - apt-transport-https
+    - ca-certificates
+    - curl
+    - containerd
+    - uidmap
+    - lvm2
+  user-data:
+    preserve_hostname: false
+    users:
+      - name: k8s
+        gecos: k8s
+        groups: adm, cdrom, sudo, dip, plugdev, lxd
+        lock_passwd: false
+        sudo: ALL=(ALL) NOPASSWD:ALL
+        # hash for k8s123
+        passwd: $5$lXJXSVj1DMJY$d245BZMekspv9BJ0LQJ4/xzKArnC7UxlSSh/LGDELW3
+  # Stop installer's ssh to avoid packer connecting to it instead of the instance's
+  early-commands:
+    - systemctl stop ssh
